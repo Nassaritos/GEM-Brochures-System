@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load inventory_extras %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+  <div><h1 class="page-title h3 mb-1">Deliveries</h1><div class="muted">Delivered batches against each order.</div></div>
+  <div class="d-flex gap-2 flex-wrap">
+    <a class="btn btn-outline-gem" href="?{% query_transform request export='xlsx' %}">Export Excel</a>
+    <a class="btn btn-outline-gem" href="?{% query_transform request export='pdf' %}">Export PDF</a>
+    {% if request.user.is_superuser or request.user|has_group:'Marketing Team' %}<a class="btn btn-gem" href="/deliveries/add/">Add Delivery</a>{% endif %}
+  </div>
+</div>
+<div class="panel p-3 mb-3 filter-bar"><form class="row g-2"><div class="col-md-4"><input class="form-control" name="q" value="{{ request.GET.q }}" placeholder="Search product, PR, or PO"></div><div class="col-md-3"><input type="date" class="form-control" name="date_from" value="{{ request.GET.date_from }}"></div><div class="col-md-3"><input type="date" class="form-control" name="date_to" value="{{ request.GET.date_to }}"></div><div class="col-md-2 d-grid"><button class="btn btn-gem">Filter</button></div></form></div>
+<div class="card p-3"><div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Product</th><th>PR</th><th>PO</th><th>Delivery Date</th><th>Delivered Qty</th><th>Notes</th></tr></thead><tbody>{% for d in deliveries %}<tr><td>{{ d.order.product.name }}</td><td>{{ d.order.pr_number }}</td><td>{{ d.order.po_number }}</td><td>{{ d.delivery_date }}</td><td>{{ d.delivered_quantity }}</td><td>{{ d.notes|default:'-' }}</td></tr>{% empty %}<tr><td colspan="6" class="text-center muted py-4">No deliveries found.</td></tr>{% endfor %}</tbody></table></div></div>
+{% endblock %}

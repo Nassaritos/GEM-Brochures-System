@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load inventory_extras %}
+{% block content %}
+<div class="panel p-4 p-md-5 mb-4 hero">
+  <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+    <div>
+      <div class="brand-strip mb-3"></div>
+      <h1 class="page-title mb-2">Brochure stock dashboard</h1>
+      <p class="muted mb-0">Track orders, delivered batches, issues, and stock status in one place.</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      {% if request.user.is_superuser or request.user|has_group:'Storekeeper' or request.user|has_group:'Marketing Team' %}
+      <a class="btn btn-gem" href="/issues/add/">Record Issue</a>
+      {% endif %}
+      {% if request.user.is_superuser or request.user|has_group:'Marketing Team' %}
+      <a class="btn btn-outline-gem" href="/orders/add/">Create Order</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-lg-3 col-md-6"><div class="card metric-card p-4"><div class="small-stat">Products</div><h2 class="mt-2 mb-0">{{ products_count }}</h2></div></div>
+  <div class="col-lg-3 col-md-6"><div class="card metric-card p-4"><div class="small-stat">Orders</div><h2 class="mt-2 mb-0">{{ orders_count }}</h2></div></div>
+  <div class="col-lg-3 col-md-6"><div class="card metric-card p-4"><div class="small-stat">Delivered quantity</div><h2 class="mt-2 mb-0">{{ total_delivered|intcomma }}</h2></div></div>
+  <div class="col-lg-3 col-md-6"><div class="card metric-card p-4"><div class="small-stat">Issued quantity</div><h2 class="mt-2 mb-0">{{ total_issued|intcomma }}</h2></div></div>
+  <div class="col-lg-4 col-md-6"><div class="card metric-card p-4"><div class="small-stat">Stock left</div><h2 class="mt-2 mb-0">{{ total_stock_left|intcomma }}</h2></div></div>
+  <div class="col-lg-4 col-md-6"><div class="card metric-card p-4"><div class="small-stat">Low stock products</div><h2 class="mt-2 mb-0">{{ low_stock_count }}</h2></div></div>
+  <div class="col-lg-4 col-md-6"><div class="card metric-card p-4"><div class="small-stat">Out of stock products</div><h2 class="mt-2 mb-0">{{ out_of_stock_count }}</h2></div></div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card p-4 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3"><h5 class="mb-0">Low stock</h5><a href="/products/?status=low" class="muted text-decoration-none">View all</a></div>
+      <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Product</th><th>Stock</th><th>Status</th></tr></thead><tbody>{% for p in low_stock_products %}<tr><td>{{ p.name }}</td><td>{{ p.current_stock }}</td><td><span class="status-pill status-low">Low Stock</span></td></tr>{% empty %}<tr><td colspan="3" class="muted">No low stock items.</td></tr>{% endfor %}</tbody></table></div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card p-4 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3"><h5 class="mb-0">Out of stock</h5><a href="/products/?status=out" class="muted text-decoration-none">View all</a></div>
+      <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Product</th><th>Stock</th><th>Status</th></tr></thead><tbody>{% for p in out_of_stock_products %}<tr><td>{{ p.name }}</td><td>{{ p.current_stock }}</td><td><span class="status-pill status-out">Out of Stock</span></td></tr>{% empty %}<tr><td colspan="3" class="muted">No out of stock items.</td></tr>{% endfor %}</tbody></table></div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card p-4 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3"><h5 class="mb-0">Recent deliveries</h5><a href="/deliveries/" class="muted text-decoration-none">View all</a></div>
+      <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Product</th><th>Date</th><th>Qty</th></tr></thead><tbody>{% for d in recent_deliveries %}<tr><td>{{ d.order.product.name }}</td><td>{{ d.delivery_date }}</td><td>{{ d.delivered_quantity }}</td></tr>{% empty %}<tr><td colspan="3" class="muted">No deliveries yet.</td></tr>{% endfor %}</tbody></table></div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card p-4 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3"><h5 class="mb-0">Recent issues</h5><a href="/issues/" class="muted text-decoration-none">View all</a></div>
+      <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Product</th><th>Date</th><th>Qty</th></tr></thead><tbody>{% for i in recent_issues %}<tr><td>{{ i.product.name }}</td><td>{{ i.issue_date }}</td><td>{{ i.issued_quantity }}</td></tr>{% empty %}<tr><td colspan="3" class="muted">No issues yet.</td></tr>{% endfor %}</tbody></table></div>
+    </div>
+  </div>
+</div>
+{% endblock %}

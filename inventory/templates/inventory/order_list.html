@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load inventory_extras %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+  <div><h1 class="page-title h3 mb-1">Orders</h1><div class="muted">Marketing orders with PR, PO, print house, and delivery progress.</div></div>
+  <div class="d-flex gap-2 flex-wrap">
+    <a class="btn btn-outline-gem" href="?{% query_transform request export='xlsx' %}">Export Excel</a>
+    <a class="btn btn-outline-gem" href="?{% query_transform request export='pdf' %}">Export PDF</a>
+    {% if request.user.is_superuser or request.user|has_group:'Marketing Team' %}<a class="btn btn-gem" href="/orders/add/">Create Order</a>{% endif %}
+  </div>
+</div>
+<div class="panel p-3 mb-3 filter-bar">
+  <form class="row g-2">
+    <div class="col-md-4"><input class="form-control" name="q" value="{{ request.GET.q }}" placeholder="Search product, PR, or PO"></div>
+    <div class="col-md-3"><input class="form-control" name="print_house" value="{{ request.GET.print_house }}" placeholder="Print house"></div>
+    <div class="col-md-3"><select class="form-select" name="status"><option value="">All statuses</option><option value="Open" {% if request.GET.status == 'Open' %}selected{% endif %}>Open</option><option value="Partially Delivered" {% if request.GET.status == 'Partially Delivered' %}selected{% endif %}>Partially Delivered</option><option value="Fully Delivered" {% if request.GET.status == 'Fully Delivered' %}selected{% endif %}>Fully Delivered</option></select></div>
+    <div class="col-md-2 d-grid"><button class="btn btn-gem">Filter</button></div>
+  </form>
+</div>
+<div class="card p-3"><div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Product</th><th>Print House</th><th>PR</th><th>PO</th><th>Date</th><th>Ordered</th><th>Unit Price</th><th>Total</th><th>Delivered</th><th>Remaining</th><th>Status</th></tr></thead><tbody>{% for o in orders %}<tr><td>{{ o.product.name }}</td><td>{{ o.print_house }}</td><td>{{ o.pr_number }}</td><td>{{ o.po_number }}</td><td>{{ o.order_date }}</td><td>{{ o.ordered_quantity }}</td><td>{{ o.unit_price }}</td><td>{{ o.total_price }}</td><td>{{ o.delivered_quantity }}</td><td>{{ o.remaining_to_deliver }}</td><td>{% if o.order_status == 'Open' %}<span class="status-pill status-open">Open</span>{% elif o.order_status == 'Partially Delivered' %}<span class="status-pill status-partial">Partially Delivered</span>{% else %}<span class="status-pill status-full">Fully Delivered</span>{% endif %}</td></tr>{% empty %}<tr><td colspan="11" class="text-center muted py-4">No orders found.</td></tr>{% endfor %}</tbody></table></div></div>
+{% endblock %}

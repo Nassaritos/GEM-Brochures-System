@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Login | GEM Brochure Tracker{% endblock %}
+{% block content %}
+<div class="login-shell">
+  <div class="row justify-content-center w-100">
+    <div class="col-lg-5 col-md-7">
+      <div class="panel p-4 p-md-5 hero">
+        <div class="brand-strip mb-3"></div>
+        <h2 class="page-title mb-2">Welcome back</h2>
+        <p class="muted mb-4">Sign in to manage brochure orders, deliveries, and stock movements.</p>
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input type="text" name="username" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" name="password" class="form-control" required>
+          </div>
+          {% if form.errors %}<div class="alert alert-danger">Invalid username or password.</div>{% endif %}
+          <button class="btn btn-gem w-100">Login</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

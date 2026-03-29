@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load inventory_extras %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+  <div><h1 class="page-title h3 mb-1">Products</h1><div class="muted">Master list with live stock status.</div></div>
+  <div class="d-flex gap-2 flex-wrap">
+    <a class="btn btn-outline-gem" href="?{% query_transform request export='xlsx' %}">Export Excel</a>
+    <a class="btn btn-outline-gem" href="?{% query_transform request export='pdf' %}">Export PDF</a>
+    {% if request.user.is_superuser or request.user|has_group:'Marketing Team' %}<a class="btn btn-gem" href="/products/add/">Add Product</a>{% endif %}
+  </div>
+</div>
+<div class="panel p-3 mb-3 filter-bar">
+  <form class="row g-2">
+    <div class="col-md-4"><input class="form-control" name="q" value="{{ request.GET.q }}" placeholder="Search product name"></div>
+    <div class="col-md-3"><select class="form-select" name="category"><option value="">All categories</option>{% for value,label in categories %}<option value="{{ value }}" {% if request.GET.category == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+    <div class="col-md-3"><select class="form-select" name="status"><option value="">All statuses</option><option value="in" {% if request.GET.status == 'in' %}selected{% endif %}>In Stock</option><option value="low" {% if request.GET.status == 'low' %}selected{% endif %}>Low Stock</option><option value="out" {% if request.GET.status == 'out' %}selected{% endif %}>Out of Stock</option></select></div>
+    <div class="col-md-2 d-grid"><button class="btn btn-gem">Filter</button></div>
+  </form>
+</div>
+<div class="card p-3"><div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Product</th><th>Category</th><th>Reorder Level</th><th>Delivered</th><th>Issued</th><th>Current Stock</th><th>Status</th></tr></thead><tbody>{% for p in products %}<tr><td>{{ p.name }}</td><td>{{ p.get_category_display }}</td><td>{{ p.reorder_level }}</td><td>{{ p.total_delivered }}</td><td>{{ p.total_issued }}</td><td>{{ p.current_stock }}</td><td>{% if p.stock_status == 'In Stock' %}<span class="status-pill status-in">In Stock</span>{% elif p.stock_status == 'Low Stock' %}<span class="status-pill status-low">Low Stock</span>{% else %}<span class="status-pill status-out">Out of Stock</span>{% endif %}</td></tr>{% empty %}<tr><td colspan="7" class="text-center muted py-4">No products found.</td></tr>{% endfor %}</tbody></table></div></div>
+{% endblock %}
